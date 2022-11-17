@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}轨迹研究所-登录{% endblock %}
+
+{% block header %}
+    <style>
+        h2 {text-align:center;margin-bottom: 30px;margin-top: 30px;}
+        div.graph {width:600px; height: 400px;margin:0 auto;margin-bottom: 50px;}
+    </style>
+    <script src="{{ url_for('static',filename="jquery/jquery.3.6.min.js") }}"></script>
+    <script src="{{ url_for('static',filename="js/echarts.min5.0.js") }}"></script>
+{% endblock %}
+
+{% block body %}
+    <div class="row mt-4">
+      <div class="col"></div>
+      <div class="col" style="background-color: #fbfcfc;">
+          <h2>病例轨迹统计</h2>
+
+                   <div id="chart1"  class="graph" ></div>
+          <div id="main"  class="graph" ></div>
+          <div id="pie"  class="graph" ></div>
+
+
+
+          <script type="text/javascript">
+
+              var myChart = echarts.init(document.getElementById('chart1'));
+              {#var xis = [{% for item in xis.1 %}{{ item }},{% endfor %}];#}
+              var option = {
+                    title:{
+                        text:'近5日病例发布折线图'
+                    },
+                    tooltip:{},
+                    legend:{
+                        data:['访客来源']
+                    },
+                    xAxis:{
+                        data:{{ axis|safe }}
+                    },
+                    yAxis:{
+                    },
+                    series:[{
+                        name:'发布病例数量',
+                        type:'line',
+                        areaStyle: {
+                            normal: {}
+                        },
+                        data:{{ data|safe }}
+                        {#data:[600,310,200,800]#}
+                    }]
+                };
+
+              myChart.setOption(option);
+          </script>
+
+
+          <script type="text/javascript">
+              // 基于准备好的dom，初始化echarts实例
+              var myChart = echarts.init(document.getElementById('main'));
+              // 指定图表的配置项和数据
+              var option = {
+                  title: {
+                      text: '经过地点人数柱状图'
+                  },
+                  tooltip: {},
+                  legend: {
+                      data: ['地点']
+                  },
+                  xAxis: {
+                      data: {{ places | safe }},
+                          {#["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"]#}
+                      axisLabel: {
+	                                  // 标签的显示间隔，0为强制显示全部，n为隔n标签显示一个标签
+		                                interval: 0,
+                                    rotate: "50"
+                      }
+                  },
+                  yAxis: {},
+                  series: [{
+                      name: '到访病例数量',
+                      type: 'bar',
+                      data: {{ place_data | safe }}
+                          {#[5, 20, 36, 10, 10, 20]#}
+                  }]
+              };
+
+              // 使用刚指定的配置项和数据显示图表。
+              myChart.setOption(option);
+          </script>
+          <div id="dataid" d="{{age_data}}" style="display:none"></div>
+          <script type="text/javascript">
+              // 基于准备好的dom，初始化echarts实例
+              var myChart = echarts.init(document.getElementById('pie'));
+              var age_data = document.getElementById('dataid').getAttribute('d');
+              console.log(age_data);
+              var age_div =new Array();
+              age_div[0]={value:parseInt(age_data[1]),name:'老年人(60岁以上)'};
+              age_div[1]={value:parseInt(age_data[4]),name:'中年人(45岁-59岁)'};
+              age_div[2]={value:parseInt(age_data[7]),name:'青年人(18岁-44岁)'};
+              age_div[3]={value:parseInt(age_data[10]),name:'少年儿童(18岁以下)'};
+
+              console.log(age_div);
+
+              myChart.setOption({
+                  title: {
+                      text: '患者年龄分布图'
+                  },
+                  series: [
+                      {
+                          name: '访问来源',
+                          type: 'pie',    // 设置图表类型为饼图
+                          radius: '50%',  // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+                          data: age_div,
+                          label: {
+                              normal: {
+                                  show: true,
+                                  formatter: '{b}:{c}: ({d}%)',//多值的嵌套
+                              }
+                          }
+                      }
+                  ]
+              })
+          </script>
+
+          <div id="relationship" class="graph" style="border:1px solid #ccc;"></div>
+            <script type="text/javascript">
+                var myChart = echarts.init(document.getElementById('relationship'));
+                var people = {{ people|safe }};
+                var raw_link = {{ link|safe }};
+                var data = [],link=[];
+                for(var i=0;i<people.length;i++){
+                    console.log("raw_data:"+Object.keys(people[i])+Object.values(people[i]));
+                    data.push({name:Object.keys(people[i])[0],symbolSize:Object.values(people[i])[0]});
+                }
+                for(var j=0;j<raw_link.length;j++){
+                    link.push({source:raw_link[j][0],target:raw_link[j][1],name:raw_link[j][2]});
+                }
+                console.log(data);
+                console.log(link);
+
+                var obj = {
+                    relationList: {
+                        data:data,
+                        link: link,
+                    }
+
+                }
+
+                var relationData = obj.relationList;
+                var data = relationData.data;
+                var link = relationData.link;
+                option = {
+                    title:{
+                        text:'患者关系图'
+                    },
+                    series: [{
+                        type: 'graph', // 类型:关系图
+                        layout: 'force', //图的布局，类型为力导图
+                        symbolSize: 5, // 调整节点的大小
+                        roam: true, // 是否开启鼠标缩放和平移漫游。默认不开启。如果只想要开启缩放或者平移,可以设置成 'scale' 或者 'move'。设置成 true 为都开启
+                        edgeSymbol: ['circle', 'arrow'],
+                        edgeSymbolSize: [1, 2],
+                        edgeLabel: {
+                            normal: {
+                                textStyle: {
+                                    fontSize: 15
+                                }
+                            }
+                        },
+                        force: {
+                            repulsion: 1000,
+                            edgeLength: [10, 40]
+                        },
+                        draggable: true,
+                        lineStyle: {
+                            normal: {
+                                width: 2,
+                                color: '#1C1C1C'
+                            }
+                        },
+                        edgeLabel: {
+                            normal: {
+                                color: '#1C1C1C',//线上的字体颜色
+                                show: true,
+                                formatter: function (x) {
+                                    return x.data.name;
+                                }
+                            }
+                        },
+                        label: {
+                            normal: {
+                                show: true,
+                                textStyle: {}
+                            }
+                        },
+
+                        // 数据
+                        data: data,
+                        links: link,
+                        color: ['#FF4500']
+                    }]
+                };
+                myChart.setOption(option);
+            </script>
+
+          <div class="inf-table" style="margin-bottom: 100px;width: 900px;">
+              <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col"style="width: 80px;">患者</th>
+                      <th scope="col"style="width: 60px;">性别</th>
+                      <th scope="col"style="width: 60px;">年龄</th>
+                      <th scope="col">轨迹</th>
+                      <th scope="col"style="width: 100px;">发病时间</th>
+                      <th scope="col"style="width: 100px;">发病症状</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                   {% for datum in track_inf  %}
+                    <tr>
+                        {% for k,item in datum.items() %}
+                            {% if k=='id' %}
+                                <th scope="row">{{ item }}</th>
+                            {% else %}
+                                <td>{{ item }}</td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                   {% endfor %}
+                  </tbody>
+                </table>
+          </div>
+
+      </div>
+      <div class="col"></div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+{% endblock %}

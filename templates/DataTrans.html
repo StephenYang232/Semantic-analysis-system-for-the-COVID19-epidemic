@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+    轨迹数据转化
+{% endblock %}
+
+{% block body %}
+    <div class="row" style="margin-top: 30px;">
+        <div class="col"></div>
+        <div class="col-8">
+            <h2 style="text-align: center;margin-bottom: 20px;">病例通报文本上传</h2>
+            <form action="{{ url_for("qa.UploadData") }}" method="post">
+                <div class="form-group">
+                    <input type="text" name="title" class="form-control" placeholder="请输入标题">
+                </div>
+                <div class="form-group">
+                    <textarea name="content" class="form-control" rows="10" placeholder="请输入内容"></textarea>
+                </div>
+                {%  for message in get_flashed_messages() %}
+                      <div class="form-group">
+                         <div class="text-danger">{{ message }}</div>
+                      </div>
+                {% endfor %}
+                <div class="form-group" style="text-align: right">
+                    <button type="submit" class="btn btn-primary">提交</button>
+                </div>
+            </form>
+        </div>
+        <div class="col"></div>
+    </div>
+{% endblock %}

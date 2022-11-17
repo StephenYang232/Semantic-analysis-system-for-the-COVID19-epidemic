@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}轨迹研究所-注册{% endblock %}
+
+{% block header %}
+    <script src="{{ url_for('static',filename="jquery/jquery.3.6.min.js") }}"></script>
+    <script src="{{ url_for('static',filename="js/register.js") }}"></script>
+    <style>
+        h3 {text-align:center}
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="row mt-3">
+      <div class="col"></div>
+      <div class="col">
+          <h3>用户注册</h3>
+      <form method="POST" action="{{ url_for('user.register') }}">
+          <div class="form-group">
+            <label for="exampleInputEmail1">用户名</label>
+            <input type="text" class="form-control" name="username">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">邮箱</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" name="email">
+            <small id="emailHelp" class="form-text text-muted">我们不会把您的邮箱用于其他用途</small>
+        </div>
+
+         <div class="form-group">
+            <label for="exampleInputEmail1">验证码</label>
+            <div class="input-group">
+                <input type="text" class="form-control" name="captcha">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" id="captcha-btn">获取验证码</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputPassword1">密码</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" name="password">
+        </div>
+
+        <div class="form-group">
+            <label for="exampleInputPassword1">确认密码</label>
+            <input type="password" class="form-control" name="password_confirm">
+        </div>
+
+           {%  for message in get_flashed_messages() %}
+                  <div class="form-group">
+                    <div class="text-danger">{{ message }}</div>
+                  </div>
+              {% endfor %}
+
+          <div class="form-group">
+              <button type="submit" class="btn btn-primary btn-block">注册</button>
+          </div>
+    </form>
+    </div>
+      <div class="col"></div>
+    </div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}轨迹研究所-首页{% endblock %}
+
+{% block header %}
+    <link rel="stylesheet" href="{{ url_for('static',filename="css/index.css") }}">
+{% endblock %}
+
+{% block body %}
+    <div class="row" style="margin-top: 20px;">
+        <div class="col"></div>
+        <div class="col-8" style="background-color: #fbfcfc;">
+            <h4 style="text-align: center;margin-top: 20px;">确诊病例通报</h4>
+            <ul class="TrackData-ul" >
+                {% for datum in data %}
+                    <li style="background-color: #fbfcfc;border-bottom:1px solid #DCDCDC;">
+                    <div class="data-main">
+                        <div class="data-title"><a href="#">{{ datum.title }}</a></div>
+                        <div class="data-content">{{ datum.content }}</div>
+                        <div class="data-detail">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+                                <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+                            </svg>
+                            <span class="data-author">{{ datum.author.username }}</span>
+                            <span class="data-time">{{ datum.create_time }}</span>
+                        </div>
+                    </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="col"></div>
+
+    </div>
+{% endblock %}
